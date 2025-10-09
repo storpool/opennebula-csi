@@ -102,7 +102,7 @@ spec:
           type: Directory
         name: cloud-dir
       - hostPath:
-          path: /var/lib/kubelet/plugins/csi.opennebula.io
+          path: /var/lib/kubelet/plugins/onecsi.storpool.com
           type: DirectoryOrCreate
         name: socket-dir
       - hostPath:

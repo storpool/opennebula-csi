@@ -46,7 +46,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: one-datastore-1
-provisioner: csi.opennebula.io
+provisioner: onecsi.storpool.com
 parameters:
   datastore_id: 1
 mountOptions:
