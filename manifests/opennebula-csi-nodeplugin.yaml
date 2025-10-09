@@ -12,6 +12,21 @@ spec:
       labels:
         name: opennebula-csi-nodeplugin
     spec:
+      initContainers:
+      - image: one-vmid:latest
+        name: one-vmid-init
+        env:
+        - name: SP_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        envFrom:
+        - secretRef:
+            name: sp-one
+        volumeMounts:
+        - mountPath: /var/lib/cloud
+          name: cloud-dir
       containers:
       - args:
         - python3
@@ -28,6 +43,9 @@ spec:
               fieldPath: spec.nodeName
         - name: PYTHONUNBUFFERED
           value: "1"
+        envFrom:
+        - secretRef:
+            name: sp-one
         image: cts.storpool.com/opennebula-csi/pre-release:v0.0.24
         livenessProbe:
           failureThreshold: 5
@@ -64,7 +82,7 @@ spec:
           readOnly: true
       - args:
         - --csi-address=/csi/csi.sock
-        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.storpool.com/csi.sock
+        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.opennebula.com/csi.sock
         image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.8.0
         imagePullPolicy: IfNotPresent
         name: node-driver-registrar
@@ -97,9 +115,7 @@ spec:
           path: /dev
           type: Directory
         name: dev-dir
-      - hostPath:
-          path: /var/lib/cloud
-          type: Directory
+      - emptyDir: {}
         name: cloud-dir
       - hostPath:
           path: /var/lib/kubelet/plugins/onecsi.storpool.com

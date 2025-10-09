@@ -16,13 +16,28 @@ The CSI driver needs to map OpenNebula virtual machines to Kubernetes nodes in a
 try to find out the OpenNebula VM ID in the list of its arguments. If it fails, the driver will try to read the VM ID
 from a file located at `/var/lib/cloud/vm-id`.
 
-The recommended approach is to add the contents of the `contrib/one-context.sh` script to the start-up script of the
-virtual machine. The script will take care of creating the `/var/lib/cloud/vm-id` file and populating its contents with
-the correct VM ID.
+#### VM ID Discovery
 
-> [!NOTE]
-> After adding the code from `contrib/one-context.sh` to the start-up script of a virtual machine, the virtual machine
-> must be restarted for the new start-up script to be executed.
+The CSI driver now automatically discovers the VM ID using an initContainer that queries the OpenNebula API. This eliminates the need for manual VM configuration scripts.
+
+The initContainer (`one-vmid:latest`) runs before the main CSI containers and:
+1. Connects to the OpenNebula API using credentials from the `sp-one` secret
+2. Queries the VM pool to find the VM matching the Kubernetes node name
+3. Writes the VM ID to `/var/lib/cloud/vm-id` for the main container to use
+
+#### Required Secret
+
+Create a secret named `sp-one` in the `kube-system` namespace with the following keys:
+- `ONE_API_ENDPOINT`: The OpenNebula API endpoint URL
+- `ONE_API_USERNAME`: OpenNebula API username
+- `ONE_API_PASSWORD`: OpenNebula API password
+
+```shell
+kubectl create secret generic sp-one -n kube-system \
+  --from-literal=ONE_API_ENDPOINT=http://your-opennebula-endpoint:2633/RPC2 \
+  --from-literal=ONE_API_USERNAME=your-username \
+  --from-literal=ONE_API_PASSWORD=your-password
+```
 
 ### Starting the CSI driver
 

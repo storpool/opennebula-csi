@@ -13,6 +13,21 @@ spec:
       labels:
         name: storpool-csi-controllerplugin
     spec:
+      initContainers:
+      - image: one-vmid:latest
+        name: one-vmid-init
+        env:
+        - name: SP_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        envFrom:
+        - secretRef:
+            name: sp-one
+        volumeMounts:
+        - mountPath: /var/lib/cloud
+          name: cloud-dir
       containers:
       - args:
         - python3
@@ -29,6 +44,9 @@ spec:
               fieldPath: spec.nodeName
         - name: PYTHONUNBUFFERED
           value: "1"
+        envFrom:
+        - secretRef:
+            name: sp-one
         image: cts.storpool.com/opennebula-csi/pre-release:v0.0.24
         name: opennebula-csi-plugin
         ports:
@@ -136,9 +154,7 @@ spec:
       serviceAccountName: opennebula-csi-controller-sa
       terminationGracePeriodSeconds: 30
       volumes:
-      - hostPath:
-          path: /var/lib/cloud
-          type: Directory
+      - emptyDir: {}
         name: cloud-dir
       - emptyDir: {}
         name: socket-dir
