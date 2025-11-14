@@ -48,7 +48,7 @@ metadata:
   name: one-datastore-1
 provisioner: onecsi.storpool.com
 parameters:
-  datastore_id: 1
+  datastore_id: "1"
 mountOptions:
   - noatime
 allowVolumeExpansion: true
