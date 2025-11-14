@@ -64,7 +64,7 @@ spec:
           readOnly: true
       - args:
         - --csi-address=/csi/csi.sock
-        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.storpool.com/csi.sock
+        - --kubelet-registration-path=/var/lib/kubelet/plugins/onecsi.storpool.com/csi.sock
         image: registry.k8s.io/sig-storage/csi-node-driver-registrar:v2.8.0
         imagePullPolicy: IfNotPresent
         name: node-driver-registrar
